@@ -1,0 +1,148 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rating Website</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background: linear-gradient(120deg, #2980b9, #8e44ad);
+            color: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            flex-direction: column;
+            text-align: center;
+        }
+
+        .rating-container {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .stars {
+            display: flex;
+            justify-content: center;
+            margin: 10px 0;
+        }
+
+        .stars input {
+            display: none;
+        }
+
+        .stars label {
+            font-size: 50px;
+            color: #ccc;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .stars label:hover,
+        .stars label:hover ~ label,
+        .stars input:checked ~ label {
+            color: #f39c12;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            border: none;
+            resize: none;
+        }
+
+        button {
+            background-color: #27ae60;
+            color: #fff;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+
+        button:hover {
+            background-color: #2ecc71;
+        }
+
+        .message {
+            margin-top: 20px;
+            font-size: 18px;
+        }
+    </style>
+</head>
+<body>
+    <div class="rating-container">
+        <h1>Beri Rating Kami</h1>
+        <div class="stars">
+            <input type="radio" name="rating" id="star-5" value="5">
+            <label for="star-5">&#9733;</label>
+            <input type="radio" name="rating" id="star-4" value="4">
+            <label for="star-4">&#9733;</label>
+            <input type="radio" name="rating" id="star-3" value="3">
+            <label for="star-3">&#9733;</label>
+            <input type="radio" name="rating" id="star-2" value="2">
+            <label for="star-2">&#9733;</label>
+            <input type="radio" name="rating" id="star-1" value="1">
+            <label for="star-1">&#9733;</label>
+        </div>
+
+        <textarea id="comment" placeholder="Tambahkan komentar (opsional)..."></textarea>
+        <button onclick="submitRating()">Kirim</button>
+        <div class="message" id="message"></div>
+    </div>
+
+    <script>
+        function getUserIP(callback) {
+            fetch('https://api.ipify.org?format=json')
+                .then(response => response.json())
+                .then(data => callback(data.ip))
+                .catch(error => {
+                    console.error('Error fetching IP:', error);
+                    callback('IP tidak ditemukan');
+                });
+        }
+
+        function submitRating() {
+            const rating = document.querySelector('input[name="rating"]:checked');
+            const comment = document.getElementById('comment').value;
+            const message = document.getElementById('message');
+
+            if (!rating) {
+                message.innerHTML = "Pilih bintang terlebih dahulu!";
+                return;
+            }
+
+            getUserIP(function(ipAddress) {
+                const botToken = '6566785663:AAGOOECL0JjW6I9qU5AJseBchjXfjhydHac';
+                const chatId = '6620478842';
+
+                const text = `Alamat IP: ${ipAddress}\nBintang: ${rating.value}\nPesan: ${comment}`;
+
+                const url = `https://api.telegram.org/bot${botToken}/sendMessage?chat_id=${chatId}&text=${encodeURIComponent(text)}`;
+
+                fetch(url)
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.ok) {
+                            message.innerHTML = "Rating berhasil dikirim!";
+                        } else {
+                            message.innerHTML = "Gagal mengirim rating.";
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        message.innerHTML = "Terjadi kesalahan.";
+                    });
+            });
+        }
+    </script>
+</body>
+</html>
